@@ -1,0 +1,86 @@
+.cat-card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 700px;
+    padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.cat-card-container:hover {
+    transform: translateY(-5px);
+}
+
+.image-fit {
+    object-fit: contain;
+    /* Ensure the image maintains its aspect ratio */
+    width: 100%;
+    /* Make the image fill the container */
+    height: 100%;
+    /* Make the image fill the container */
+    display: block;
+    /* Remove any unwanted space below the image */
+}
+
+.actions-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.actions-container .MuiIconButton-root {
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    padding: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.actions-container .MuiIconButton-root:hover {
+    background-color: #e0e0e0;
+}
+
+.actions-container .MuiIconButton-root:active {
+    background-color: #d0d0d0;
+}
+
+.votes-container {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+.votes-container Typography {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.votes-container .MuiTypography-root {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.votes-container .MuiTypography-body2 {
+    color: #3498db;
+    /* Add color to the text */
+}
+
+@media (max-width: 600px) {
+    .cat-card-container {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .image-fit {
+        max-height: 150px;
+    }
+}

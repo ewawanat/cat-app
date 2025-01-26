@@ -1,0 +1,13 @@
+.favourites-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+}
+
+.no-favourites {
+    text-align: center;
+    font-size: 1.5rem;
+    color: grey;
+    margin-top: 20px;
+}
