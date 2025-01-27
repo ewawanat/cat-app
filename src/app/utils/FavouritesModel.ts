@@ -11,7 +11,16 @@ export type ApiFavouriteCat = {
     image: FavouriteImage;
 }
 
-
+export type FavouriteIdImageId = {
+    favouriteId: string,
+    imageId: string,
+}
 export const getCatImageId = (apiFavouriteCats: ApiFavouriteCat[]): string[] => {
     return apiFavouriteCats.map(aCat => aCat.image_id)
+}
+export const getCatImageIdAndFavouriteId = (apiFavouriteCats: ApiFavouriteCat[]): FavouriteIdImageId[] => {
+    return apiFavouriteCats.map((aCat) => ({
+        favouriteId: aCat.id.toString(),
+        imageId: aCat.image_id,
+    }))
 }

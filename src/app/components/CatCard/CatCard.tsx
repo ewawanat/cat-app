@@ -15,11 +15,11 @@ import styles from './CatCard.module.css';
 
 type CatCardProps = {
     cat: AppCatImage;
-    onAddFavourite: (imageId: string, favouriteId: string) => void;
-    onRemoveFavourite: (imageId: string) => void;
+    isOnFavouritesPage: boolean;
+    votesLoading?: boolean;
 }
 
-const CatCard = ({ cat, onAddFavourite, onRemoveFavourite }: CatCardProps) => {
+const CatCard = ({ cat, isOnFavouritesPage, votesLoading }: CatCardProps) => {
     const [votes, setVotes] = useState<number>(cat.votes);
 
     const [addFavouriteError, setAddFavouriteError] = useState<string | null>(null);
@@ -52,7 +52,6 @@ const CatCard = ({ cat, onAddFavourite, onRemoveFavourite }: CatCardProps) => {
             }
 
             const data = await response.json();
-            console.log('faves data', data);
 
             if (data.message === 'SUCCESS') {
                 // Dispatch the ADD_FAVOURITE action to update the state
@@ -60,11 +59,9 @@ const CatCard = ({ cat, onAddFavourite, onRemoveFavourite }: CatCardProps) => {
                     type: 'ADD_FAVOURITE',
                     payload: { imageId: cat.imageId, favouriteId: data.id },
                 });
-
-                // onAddFavourite(cat.imageId, data.id); // Pass favouriteId to parent
             }
         } catch (error) {
-            console.error('Error adding favourite:', error);
+            console.error('Error adding favourite:', error); //log this somewhere useful
             setAddFavouriteError('There was an issue adding the cat to your favourites.');
         }
         finally {
@@ -90,11 +87,11 @@ const CatCard = ({ cat, onAddFavourite, onRemoveFavourite }: CatCardProps) => {
             }
 
             const data = await response.json();
-            console.log('Removed favourite:', data);
-            if (data.message === 'SUCCESS' && cat.favouriteId) {
+
+            if (data.message === 'SUCCESS') {
                 dispatch({
                     type: 'REMOVE_FAVOURITE',
-                    payload: { favouriteId: data.id },
+                    payload: { favouriteId },
                 });
             }
         } catch (error) {
@@ -106,10 +103,10 @@ const CatCard = ({ cat, onAddFavourite, onRemoveFavourite }: CatCardProps) => {
     };
 
     const toggleFavorite = () => {
-        if (cat.favouriteId) {
-            removeFavourite(cat.favouriteId || ''); // Pass the favouriteId to remove
+        if (currentCat.favouriteId) {
+            removeFavourite(currentCat.favouriteId);
         } else {
-            addFavourite(cat);
+            addFavourite(currentCat);
         }
     };
     const handleVote = async (type: 'up' | 'down') => {
@@ -161,7 +158,7 @@ const CatCard = ({ cat, onAddFavourite, onRemoveFavourite }: CatCardProps) => {
         <div className={styles['cat-card-container']}>
             <Link
                 href={{
-                    pathname: `/breeds/${cat.imageId}`,
+                    pathname: `/breeds/${currentCat.imageId}`,
                     query: {
                         width: currentCat.imageWidth,
                         height: currentCat.imageHeight,
@@ -171,8 +168,7 @@ const CatCard = ({ cat, onAddFavourite, onRemoveFavourite }: CatCardProps) => {
             >
                 <Image alt='Image of a cat' src={currentCat.url} width={currentCat.imageWidth} height={currentCat.imageHeight} className={styles['image-fit']} />
             </Link>
-            <div className={styles['actions-container']}>
-                <>{currentCat.imageId}</>
+            {!isOnFavouritesPage && <div className={styles['actions-container']}>
                 <IconButton onClick={toggleFavorite}>
                     {currentCat.favouriteId ? <FavoriteIcon color='error' /> : <FavoriteBorderIcon />}
                 </IconButton>
@@ -184,10 +180,11 @@ const CatCard = ({ cat, onAddFavourite, onRemoveFavourite }: CatCardProps) => {
                     <ThumbDownIcon />
                     <Typography variant='body2' ml={1}>Vote Down</Typography>
                 </IconButton>
-            </div>
-            <div className={styles['votes-container']}>
+            </div>}
+            {!isOnFavouritesPage && !votesLoading && <div className={styles['votes-container']}>
                 <Typography variant='body2'>Votes: {votes}</Typography>
-            </div>
+            </div>}
+            {votesLoading && <Typography variant='body2'>Votes: loading...</Typography>}
         </div>
     );
 }

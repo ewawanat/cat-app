@@ -4,16 +4,15 @@ import styles from './CatList.module.css';
 
 type CatListProps = {
     catListData: AppCatImage[];
-    // onAddFavourite: (imageId: string, favouriteId: string) => void;
-    favourites: AppCatImage[];
-    // onRemoveFavourite: (favouriteId: string) => void;
+    votesLoading: boolean
 };
 
-const CatList = ({ catListData, favourites }: CatListProps) => {
-    console.log('cat list favourites', favourites)
+const CatList = ({ catListData, votesLoading }: CatListProps) => {
     const catCards = catListData.map((cat) => {
         return (
             <CatCard
+                votesLoading={votesLoading}
+                isOnFavouritesPage={false}
                 key={cat.imageId}
                 cat={cat}
 

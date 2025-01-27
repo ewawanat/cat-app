@@ -18,6 +18,7 @@ const HomePage = () => {
   const [votes, setVotes] = useState<AppCatVotes[]>([]);
   const [votesLoading, setVotesLoading] = useState<boolean>(false);
   const [votesError, setVotesError] = useState<string | null>(null);
+
   // Fetch cat data based on the selected breed
   const fetchCatData = async (breedId: string | null) => {
     setLoadingCatData(true);
@@ -95,17 +96,6 @@ const HomePage = () => {
     });
   }, [catData, votes]); // Only recompute when catData or votes change
 
-  // Handle adding a favourite
-  // const handleAddFavourite = (imageId: string, favouriteId: string) => {
-  //   dispatch({ type: 'ADD_FAVOURITE', payload: { imageId, favouriteId } });
-  // };
-  // const handleRemoveFavourite = (favouriteId: string) => {
-  //   dispatch({
-  //     type: 'REMOVE_FAVOURITE',
-  //     payload: { favouriteId },
-  //   });
-  // };
-
   return (
     <div className={styles.page}>
       <Typography variant='h4' gutterBottom>
@@ -113,7 +103,7 @@ const HomePage = () => {
       </Typography>
       <CatBreedSelector onBreedSelect={handleBreedSelect} />
 
-      <CatList catListData={mappedCatsWithVotes} favourites={catData.filter((cat) => cat.favouriteId)} />
+      <CatList votesLoading={votesLoading} catListData={mappedCatsWithVotes} />
       {loadingCatData && (
         <div className={styles['spinner-container']}>
           <Typography variant='h6'>Fetching your cats...</Typography>
@@ -122,12 +112,6 @@ const HomePage = () => {
       )}
       {fetchCatDataError && (
         <Typography color='error'>{fetchCatDataError}</Typography>
-      )}
-      {votesLoading && (
-        <div className={styles['spinner-container']}>
-          <Typography variant='h6'>Loading votes..</Typography>
-          <CircularProgress />
-        </div>
       )}
       {votesError && (
         <Typography color='error'>{votesError}</Typography>

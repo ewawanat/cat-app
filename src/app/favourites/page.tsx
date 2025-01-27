@@ -3,22 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CatCard from '../components/CatCard/CatCard';
 import { AppCatImage } from '../utils/CatModel';
-import { getCatImageId } from '../utils/FavouritesModel';
+import { getCatImageId, getCatImageIdAndFavouriteId, FavouriteIdImageId } from '../utils/FavouritesModel';
 import { tranformApiCatsToAppCats } from '../utils/CatModel';
-import { CatAction } from '../reducers/catReducer'
 import styles from './Favourites.module.css';
 
-type FavouritesPageProps = {
-    dispatch: React.Dispatch<CatAction>;
-};
-
-const FavouritesPage = ({ dispatch }: FavouritesPageProps) => {
+const FavouritesPage = () => {
     const [favourites, setFavourites] = useState<string[]>([]);
     const [catImageData, setCatImageData] = useState<AppCatImage[]>([]);
     const [favouritesLoading, setFavouritesLoading] = useState(false);
     const [favouritesError, setFavouritesError] = useState<string | null>(null);
     const [fetchCatDataLoading, setFetchCatDataLoading] = useState(false);
     const [fetchCatError, setFetchCatError] = useState<string | null>(null);
+    const [imageFavourites, setImageFavourites] = useState<FavouriteIdImageId[]>()
 
     // Fetch favourite cat image IDs
     useEffect(() => {
@@ -35,13 +31,17 @@ const FavouritesPage = ({ dispatch }: FavouritesPageProps) => {
                         },
                     }
                 );
+                // console.log('fetchFavourites response', response)
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch favourites');
                 }
 
                 const data = await response.json();
-                const transformedData = getCatImageId(data); // Get image IDs
+                console.log('fetchFavourites data', data)
+                const transformedData = getCatImageId(data); // Get imageIds
+                const favouritesData = getCatImageIdAndFavouriteId(data)
+                setImageFavourites(favouritesData) //get favouriteId and imageId
                 setFavourites(transformedData);
             } catch (err) {
                 setFavouritesError('Error fetching favourites');
@@ -53,12 +53,13 @@ const FavouritesPage = ({ dispatch }: FavouritesPageProps) => {
 
         fetchFavourites();
     }, []);
-    console.log('favourites', favourites)
+    // console.log('favourites', favourites)
     // Fetch full cat data using image IDs
     useEffect(() => {
         const fetchCatData = async () => {
-            if (favourites.length > 0) {
+            if (favourites.length > 0 && imageFavourites) {
                 setFetchCatDataLoading(true);
+                // let imageFavourite: ImageFavourite
                 try {
                     const catPromises = favourites.map((imageId) =>
                         fetch(`https://api.thecatapi.com/v1/images/${imageId}`, {
@@ -69,7 +70,8 @@ const FavouritesPage = ({ dispatch }: FavouritesPageProps) => {
                     );
 
                     const catData = await Promise.all(catPromises);
-                    const tranformedCats = tranformApiCatsToAppCats(catData, favourites); // Pass favourites here
+                    console.log('favourite catData', catData)
+                    const tranformedCats = tranformApiCatsToAppCats(catData, imageFavourites); // Pass favourites here
                     setCatImageData(tranformedCats);
                 } catch (err) {
                     setFetchCatError('Error fetching cat data');
@@ -81,7 +83,7 @@ const FavouritesPage = ({ dispatch }: FavouritesPageProps) => {
         };
 
         fetchCatData();
-    }, [favourites]);
+    }, [favourites, imageFavourites]);
 
     if (favouritesLoading) {
         return <div><CircularProgress /><span>Favourite cats loading...</span></div>;
@@ -99,24 +101,14 @@ const FavouritesPage = ({ dispatch }: FavouritesPageProps) => {
     if (fetchCatError) {
         return <div>{fetchCatError}</div>;
     }
-    const handleAddFavourite = (imageId: string, favouriteId: string) => {
-        dispatch({ type: 'ADD_FAVOURITE', payload: { imageId, favouriteId } });
-    };
-    const handleRemoveFavourite = (favouriteId: string) => {
-        dispatch({
-            type: 'REMOVE_FAVOURITE',
-            payload: { favouriteId },
-        });
-    };
 
     return (
         <div className={styles['favourites-container']}>
             {catImageData.map((cat) => (
                 <CatCard
+                    isOnFavouritesPage={false}
                     key={`cat${cat.imageId}`}
                     cat={cat}
-                    onAddFavourite={handleAddFavourite}
-                    onRemoveFavourite={handleRemoveFavourite}
                 />
             ))}
         </div>
